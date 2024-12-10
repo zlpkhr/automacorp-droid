@@ -169,13 +169,15 @@ fun RoomItem(room: RoomDto, modifier: Modifier = Modifier) {
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Target temperature : " + (room.targetTemperature?.toString()
+                    text = "Target temperature : " + (room.targetTemperature?.let { Math.round(it * 10) / 10.0 }
+                        ?.toString()
                         ?: "?") + "°",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
             Text(
-                text = (room.currentTemperature?.toString() ?: "?") + "°",
+                text = (room.currentTemperature?.let { Math.round(it * 10) / 10.0 }?.toString()
+                    ?: "?") + "°",
                 style = MaterialTheme.typography.headlineLarge,
                 textAlign = TextAlign.Right,
                 modifier = Modifier.fillMaxSize()

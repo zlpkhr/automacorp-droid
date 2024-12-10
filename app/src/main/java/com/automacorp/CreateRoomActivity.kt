@@ -115,8 +115,10 @@ class CreateRoomActivity : ComponentActivity() {
                             onClick = {
                                 val command = RoomCommandDto(
                                     name = roomName.value,
-                                    targetTemperature = targetTemperature.floatValue.toDouble(),
-                                    currentTemperature = currentTemperature.floatValue.toDouble(),
+                                    targetTemperature = targetTemperature.floatValue.toDouble()
+                                        .let { Math.round(it * 10) / 10.0 },
+                                    currentTemperature = currentTemperature.floatValue.toDouble()
+                                        .let { Math.round(it * 10) / 10.0 },
                                     floor = floor.value.toIntOrNull() ?: 1,
                                     buildingId = buildingId.value.toLongOrNull() ?: -10
                                 )

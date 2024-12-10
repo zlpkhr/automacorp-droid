@@ -151,7 +151,7 @@ fun RoomDetail(model: RoomViewModel, modifier: Modifier = Modifier, onDelete: ()
         item {
 
             Text(
-                text = "${(room?.currentTemperature ?: "N/A")} °C",
+                text = "${(room?.currentTemperature?.let { Math.round(it * 10) / 10.0 } ?: "N/A")} °C",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
             )

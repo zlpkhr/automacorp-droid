@@ -66,7 +66,7 @@ class RoomViewModel : ViewModel() {
         val command = RoomCommandDto(
             name = roomDto.name,
             targetTemperature = roomDto.targetTemperature?.let { Math.round(it * 10) / 10.0 },
-            currentTemperature = roomDto.currentTemperature,
+            currentTemperature = roomDto.currentTemperature?.let { Math.round(it * 10) / 10.0 },
         )
         viewModelScope.launch(context = Dispatchers.IO) {
             runCatching { ApiServices.roomsApiService.updateRoom(id, command).execute() }
@@ -120,7 +120,6 @@ class RoomViewModel : ViewModel() {
             viewModelScope.launch(context = Dispatchers.IO) {
                 runCatching { ApiServices.roomsApiService.updateWindow(id, command).execute() }
                     .onSuccess {
-                        // Refresh the room to get updated windows
                         room?.id?.let { findRoom(it) }
                     }
                     .onFailure {
