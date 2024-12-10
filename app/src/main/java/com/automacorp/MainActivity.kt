@@ -1,5 +1,6 @@
 package com.automacorp
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -36,12 +37,19 @@ import com.automacorp.ui.theme.AutomacorpTheme
 import androidx.compose.runtime.setValue
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        const val ROOM_PARAM = "com.automacorp.room.attribute"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         val onSayHelloButtonClick: (name: String) -> Unit = { name ->
-            Toast.makeText(baseContext, "Hello $name", Toast.LENGTH_LONG).show()
+            val intent = Intent(this, RoomActivity::class.java).apply {
+                putExtra(ROOM_PARAM, name)
+            }
+            startActivity(intent)
         }
 
         setContent {
@@ -70,10 +78,8 @@ fun AppLogo(modifier: Modifier) {
 
 @Composable
 fun Greeting(onClick: (name: String) -> Unit, modifier: Modifier = Modifier) {
-    var name by remember { mutableStateOf("") }
 
     Column {
-
         AppLogo(
             Modifier
                 .padding(top = 32.dp)
@@ -87,6 +93,7 @@ fun Greeting(onClick: (name: String) -> Unit, modifier: Modifier = Modifier) {
                 .align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Center
         )
+        var name by remember { mutableStateOf("") }
         OutlinedTextField(
             name,
             onValueChange = { name = it },
