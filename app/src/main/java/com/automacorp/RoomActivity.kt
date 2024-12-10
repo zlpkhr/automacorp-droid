@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -82,7 +83,10 @@ class RoomActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
                     if (roomState != null) {
-                        RoomDetail(viewModel, Modifier.padding(innerPadding))
+                        RoomDetail(viewModel, Modifier.padding(innerPadding), onDelete = {
+                            viewModel.deleteRoom(roomState.id)
+                            finish()
+                        })
                     } else {
                         NoRoom(Modifier.padding(innerPadding))
                     }
@@ -93,7 +97,7 @@ class RoomActivity : ComponentActivity() {
 }
 
 @Composable
-fun RoomDetail(model: RoomViewModel, modifier: Modifier = Modifier) {
+fun RoomDetail(model: RoomViewModel, modifier: Modifier = Modifier, onDelete: () -> Unit) {
     Column(modifier = modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
         val room = model.room
 
@@ -137,9 +141,25 @@ fun RoomDetail(model: RoomViewModel, modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp)
         )
+
+
+        Button(
+            onClick = onDelete,
+
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+        ) {
+            if (model.room != null) {
+                Text("Delete Room")
+            } else {
+                Text("How I am even rendered?")
+            }
+        }
     }
 
 }
+
 
 @Composable
 fun NoRoom(modifier: Modifier = Modifier) {
@@ -184,7 +204,7 @@ fun RoomDetailPreview() {
             windows = emptyList()
         )
 
-        RoomDetail(viewModel)
+        RoomDetail(viewModel, onDelete = {})
     }
 }
 

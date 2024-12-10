@@ -18,6 +18,12 @@ class RoomViewModel : ViewModel() {
 
     val roomsState = MutableStateFlow(RoomList())
 
+    fun deleteRoom(id: Long) {
+        viewModelScope.launch(context = Dispatchers.IO) {
+            runCatching { ApiServices.roomsApiService.deleteRoom(id).execute() }
+        }
+    }
+
     fun findAll() {
         viewModelScope.launch(context = Dispatchers.IO) {
             runCatching { ApiServices.roomsApiService.findAll().execute() }
