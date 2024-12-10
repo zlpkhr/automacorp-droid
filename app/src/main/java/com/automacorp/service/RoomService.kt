@@ -10,11 +10,10 @@ object RoomService {
     val ROOM_NUMBER: List<Char> = ('A'..'Z').toList()
     val WINDOW_KIND: List<String> = listOf("Sliding", "Bay", "Casement", "Hung", "Fixed")
 
-    fun generateWindow(id: Long, roomId: Long, roomName: String): WindowDto {
+    fun generateWindow(id: Long, roomId: Long): WindowDto {
         return WindowDto(
             id = id,
             name = "${WINDOW_KIND.random()} Window $id",
-            roomName = roomName,
             roomId = roomId,
             windowStatus = WindowStatus.entries.toTypedArray().random()
         )
@@ -22,7 +21,7 @@ object RoomService {
 
     fun generateRoom(id: Long): RoomDto {
         val roomName = "${ROOM_NUMBER.random()}$id ${ROOM_KIND.random()}"
-        val windows = (1..(1..6).random()).map { generateWindow(it.toLong(), id, roomName) }
+        val windows = (1..(1..6).random()).map { generateWindow(it.toLong(), id) }
         return RoomDto(
             id = id,
             name = roomName,

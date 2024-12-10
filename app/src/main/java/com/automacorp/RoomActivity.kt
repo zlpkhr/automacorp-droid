@@ -6,11 +6,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Button
@@ -30,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.automacorp.model.RoomDto
+import com.automacorp.model.WindowDto
 import com.automacorp.ui.theme.AutomacorpTheme
 import com.automacorp.viewmodel.RoomViewModel
 import kotlin.math.round
@@ -141,6 +146,14 @@ fun RoomDetail(model: RoomViewModel, modifier: Modifier = Modifier, onDelete: ()
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp)
         )
+        if (model.room?.windows !== null) {
+            WindowsList(
+                windows = model.room!!.windows,
+                onClick = { window ->
+                    model.switchWindow(window.id)
+                }
+            )
+        }
 
 
         Button(
@@ -213,5 +226,25 @@ fun RoomDetailPreview() {
 fun NoRoomPreview() {
     AutomacorpTheme {
         NoRoom()
+    }
+}
+
+@Composable
+fun WindowsList(
+    windows: List<WindowDto>,
+    onClick: (WindowDto) -> Unit
+) {
+    LazyColumn {
+        items(windows, key = { it.id }) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .clickable { onClick(it) }
+            ) {
+                Text(text = it.name, modifier = Modifier.weight(1f))
+                Text(text = it.windowStatus.toString())
+            }
+        }
     }
 }

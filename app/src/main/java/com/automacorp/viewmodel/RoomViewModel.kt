@@ -68,4 +68,13 @@ class RoomViewModel : ViewModel() {
                 }
         }
     }
+
+    fun switchWindow(id: Long) {
+        viewModelScope.launch(context = Dispatchers.IO) {
+            runCatching { ApiServices.roomsApiService.switchWindow(id).execute() }
+                .onSuccess {
+                    room?.id?.let { findRoom(it) }
+                }
+        }
+    }
 }
