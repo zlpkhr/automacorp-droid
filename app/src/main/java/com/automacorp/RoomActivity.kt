@@ -37,20 +37,40 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.automacorp.model.RoomDto
 import com.automacorp.ui.theme.AutomacorpTheme
 import com.automacorp.viewmodel.RoomViewModel
+import kotlinx.coroutines.launch
 import kotlin.math.round
 
 class RoomActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val param = intent.getStringExtra(MainActivity.ROOM_PARAM)?.toLongOrNull()
+        val param = intent.getStringExtra(MainActivity.ROOM_PARAM)
         val viewModel: RoomViewModel by viewModels()
-        param?.let {
-            viewModel.findRoom(it)
-        }
 
+        if (param != null) {
+            val id = param.toDoubleOrNull()
+            if (id != null) {
+                viewModel.findRoom(id.toLong())
+            } else {
+                viewModel.findAll()
+                lifecycleScope.launch {
+                    lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        viewModel.roomsState.collect { roomList ->
+                            val room =
+                                roomList.rooms.find { it.name.equals(param, ignoreCase = true) }
+                            if (room != null) {
+                                viewModel.room = room
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         val onRoomSave: () -> Unit = {
             if (viewModel.room != null) {
