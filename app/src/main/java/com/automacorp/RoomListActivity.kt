@@ -16,8 +16,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -55,6 +59,16 @@ class RoomListActivity : ComponentActivity() {
         startActivity(intent)
     }
 
+    val goToCreate: () -> Unit = {
+        startActivity(Intent(this, CreateRoomActivity::class.java))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val viewModel: RoomViewModel by viewModels()
+        viewModel.findAll()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -72,7 +86,8 @@ class RoomListActivity : ComponentActivity() {
                         navigateBack,
                         openRoom,
                         sendEmail = { sendEmail(this) },
-                        openGithub = { openGithub(this) }
+                        openGithub = { openGithub(this) },
+                        goToCreate = goToCreate
                     )
                 }
                 Toast
@@ -83,7 +98,7 @@ class RoomListActivity : ComponentActivity() {
                     )
                     .show()
             } else {
-                RoomList(roomsState.rooms, navigateBack, openRoom)
+                RoomList(roomsState.rooms, navigateBack, openRoom, goToCreate = goToCreate)
             }
         }
 
@@ -96,7 +111,8 @@ fun RoomList(
     navigateBack: () -> Unit,
     openRoom: (id: Long) -> Unit,
     sendEmail: (() -> Unit)? = null,
-    openGithub: (() -> Unit)? = null
+    openGithub: (() -> Unit)? = null,
+    goToCreate: (() -> Unit)
 ) {
     AutomacorpTheme {
         Scaffold(
@@ -106,6 +122,11 @@ fun RoomList(
                     sendEmail = sendEmail,
                     openGithub = openGithub
                 )
+            },
+            floatingActionButton = {
+                FloatingActionButton(onClick = goToCreate) {
+                    Icon(Icons.Default.Add, contentDescription = "Create Room")
+                }
             }
         ) { innerPadding ->
             if (rooms.isEmpty()) {
