@@ -1,5 +1,8 @@
 package com.automacorp
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -16,6 +19,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.automacorp.ui.theme.AutomacorpTheme
+
+fun goToRoomList(context: Context) {
+    val intent = Intent(context, RoomListActivity::class.java)
+    context.startActivity(intent)
+}
+
+fun sendEmail(context: Context) {
+    val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:zlpkhr@icloud.com"))
+    context.startActivity(intent)
+}
+
+fun openGithub(context: Context) {
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/zlpkhr"))
+    context.startActivity(intent)
+}
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)

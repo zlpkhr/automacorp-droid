@@ -1,7 +1,5 @@
 package com.automacorp
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -53,30 +51,13 @@ class RoomActivity : ComponentActivity() {
                     "Room ${viewModel.room!!.name} was updated",
                     Toast.LENGTH_LONG
                 ).show()
-                startActivity(Intent(baseContext, MainActivity::class.java))
-
+                finish()
             }
         }
 
         val navigateBack: () -> Unit = {
-            startActivity(Intent(baseContext, RoomListActivity::class.java))
+            finish()
         }
-
-        val goToRoomList: () -> Unit = {
-            val intent = Intent(baseContext, RoomListActivity::class.java)
-            startActivity(intent)
-        }
-
-        val sendEmail: () -> Unit = {
-            val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:zlpkhr@icloud.com"))
-            startActivity(intent)
-        }
-
-        val openGithub: () -> Unit = {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/zlpkhr"))
-            startActivity(intent)
-        }
-
 
         enableEdgeToEdge()
         setContent {
@@ -88,9 +69,9 @@ class RoomActivity : ComponentActivity() {
                         AutomacorpTopAppBar(
                             "Room",
                             navigateBack,
-                            goToRoomList,
-                            sendEmail,
-                            openGithub
+                            goToRoomList = { goToRoomList(this) },
+                            sendEmail = { sendEmail(this) },
+                            openGithub = { openGithub(this) }
                         )
                     },
                     floatingActionButton = { RoomUpdateButton(onRoomSave) },

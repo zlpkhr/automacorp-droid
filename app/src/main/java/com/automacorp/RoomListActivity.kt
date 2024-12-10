@@ -1,7 +1,6 @@
 package com.automacorp
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -46,22 +45,7 @@ class RoomListActivity : ComponentActivity() {
     }
 
     val navigateBack: () -> Unit = {
-        startActivity(Intent(baseContext, MainActivity::class.java))
-    }
-
-    val goToRoomList: () -> Unit = {
-        val intent = Intent(baseContext, RoomListActivity::class.java)
-        startActivity(intent)
-    }
-
-    val sendEmail: () -> Unit = {
-        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:zlpkhr@icloud.com"))
-        startActivity(intent)
-    }
-
-    val openGithub: () -> Unit = {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/zlpkhr"))
-        startActivity(intent)
+        finish()
     }
 
     val openRoom: (id: Long) -> Unit = { id ->
@@ -83,7 +67,13 @@ class RoomListActivity : ComponentActivity() {
             }
             if (roomsState.error != null) {
                 setContent {
-                    RoomList(emptyList(), navigateBack, openRoom)
+                    RoomList(
+                        emptyList(),
+                        navigateBack,
+                        openRoom,
+                        sendEmail = { sendEmail(this) },
+                        openGithub = { openGithub(this) }
+                    )
                 }
                 Toast
                     .makeText(
@@ -105,14 +95,17 @@ fun RoomList(
     rooms: List<RoomDto>,
     navigateBack: () -> Unit,
     openRoom: (id: Long) -> Unit,
+    sendEmail: (() -> Unit)? = null,
+    openGithub: (() -> Unit)? = null
 ) {
     AutomacorpTheme {
         Scaffold(
             topBar = {
                 AutomacorpTopAppBar(
                     "Rooms", navigateBack,
-
-                    )
+                    sendEmail = sendEmail,
+                    openGithub = openGithub
+                )
             }
         ) { innerPadding ->
             if (rooms.isEmpty()) {
