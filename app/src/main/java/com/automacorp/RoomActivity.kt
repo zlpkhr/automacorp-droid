@@ -8,7 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,7 +33,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.automacorp.model.RoomDto
-import com.automacorp.model.WindowDto
 import com.automacorp.ui.theme.AutomacorpTheme
 import com.automacorp.viewmodel.RoomViewModel
 import kotlin.math.round
@@ -103,70 +101,105 @@ class RoomActivity : ComponentActivity() {
 
 @Composable
 fun RoomDetail(model: RoomViewModel, modifier: Modifier = Modifier, onDelete: () -> Unit) {
-    Column(modifier = modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-        val room = model.room
+    val room = model.room
+    LazyColumn(modifier = modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
 
-        OutlinedTextField(
-            value = room?.name ?: "",
-            onValueChange = { model.room = room?.copy(name = it) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            placeholder = { Text(stringResource(R.string.act_room_name)) },
-            label = { Text(stringResource(R.string.act_room_name)) }
-        )
-        Text(
-            text = stringResource(R.string.act_room_current_temperature),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-        Text(
-            text = "${(room?.currentTemperature ?: "N/A")} °C",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        Text(
-            text = stringResource(R.string.act_room_target_temperature),
-            style = MaterialTheme.typography.labelSmall,
-        )
-        Slider(
-            value = room?.targetTemperature?.toFloat() ?: 18f,
-            onValueChange = { model.room = room?.copy(targetTemperature = it.toDouble()) },
-            colors = SliderDefaults.colors(
-                thumbColor = MaterialTheme.colorScheme.secondary,
-                activeTrackColor = MaterialTheme.colorScheme.secondary,
-                inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
-            ),
-            valueRange = 10f..28f,
-            steps = 0,
 
+        item {
+            OutlinedTextField(
+                value = room?.name ?: "",
+                onValueChange = { model.room = room?.copy(name = it) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                placeholder = { Text(stringResource(R.string.act_room_name)) },
+                label = { Text(stringResource(R.string.act_room_name)) }
             )
-        Text(
-            text = (round((room?.targetTemperature ?: 18.0) * 10) / 10).toString(),
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 4.dp)
-        )
-        if (model.room?.windows !== null) {
-            WindowsList(
-                windows = model.room!!.windows,
-                onClick = { window ->
-                    model.switchWindow(window.id)
-                }
+        }
+        item {
+            Text(
+                text = stringResource(R.string.act_room_current_temperature),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+        }
+        item {
+
+            Text(
+                text = "${(room?.currentTemperature ?: "N/A")} °C",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+        item {
+
+            Text(
+                text = stringResource(R.string.act_room_target_temperature),
+                style = MaterialTheme.typography.labelSmall,
             )
         }
 
+        item {
+            Slider(
+                value = room?.targetTemperature?.toFloat() ?: 18f,
+                onValueChange = { model.room = room?.copy(targetTemperature = it.toDouble()) },
+                colors = SliderDefaults.colors(
+                    thumbColor = MaterialTheme.colorScheme.secondary,
+                    activeTrackColor = MaterialTheme.colorScheme.secondary,
+                    inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
+                valueRange = 10f..28f,
+                steps = 0,
 
-        Button(
-            onClick = onDelete,
+                )
+        }
+        item {
+            Text(
+                text = (round((room?.targetTemperature ?: 18.0) * 10) / 10).toString(),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
 
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-        ) {
-            if (model.room != null) {
-                Text("Delete Room")
-            } else {
-                Text("How I am even rendered?")
+        if (model.room?.windows !== null) {
+            items(model.room!!.windows, key = { it.id }) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .clickable { model.switchWindow(it.id) }
+                ) {
+                    Text(text = it.name, modifier = Modifier.weight(1f))
+                    Text(text = it.windowStatus.toString())
+                }
+            }
+            item {
+                Button(
+                    onClick = {
+                        room?.id?.let { model.createWindow(it) }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                ) {
+                    Text("Add Window")
+                }
+            }
+        }
+
+        item {
+            Button(
+                onClick = onDelete,
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            ) {
+                if (model.room != null) {
+                    Text("Delete Room")
+                } else {
+                    Text("How I am even rendered?")
+                }
             }
         }
     }
@@ -229,22 +262,3 @@ fun NoRoomPreview() {
     }
 }
 
-@Composable
-fun WindowsList(
-    windows: List<WindowDto>,
-    onClick: (WindowDto) -> Unit
-) {
-    LazyColumn {
-        items(windows, key = { it.id }) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .clickable { onClick(it) }
-            ) {
-                Text(text = it.name, modifier = Modifier.weight(1f))
-                Text(text = it.windowStatus.toString())
-            }
-        }
-    }
-}

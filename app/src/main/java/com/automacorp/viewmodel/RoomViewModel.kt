@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.automacorp.model.RoomCommandDto
 import com.automacorp.model.RoomDto
 import com.automacorp.model.RoomList
+import com.automacorp.model.WindowDto
+import com.automacorp.model.WindowStatus
 import com.automacorp.service.ApiServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,6 +76,24 @@ class RoomViewModel : ViewModel() {
             runCatching { ApiServices.roomsApiService.switchWindow(id).execute() }
                 .onSuccess {
                     room?.id?.let { findRoom(it) }
+                }
+        }
+    }
+
+    fun createWindow(roomId: Long) {
+        viewModelScope.launch(context = Dispatchers.IO) {
+            val newWindow = WindowDto(
+                id = 0,
+                name = "Window ${room?.windows?.size?.plus(1) ?: 1}",
+                windowStatus = WindowStatus.CLOSED,
+                roomId = roomId
+            )
+            runCatching { ApiServices.roomsApiService.createWindow(newWindow).execute() }
+                .onSuccess {
+                    room?.id?.let { findRoom(it) }
+                }
+                .onFailure {
+                    it.printStackTrace()
                 }
         }
     }

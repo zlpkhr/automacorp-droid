@@ -2,6 +2,7 @@ package com.automacorp.service
 
 import com.automacorp.model.RoomCommandDto
 import com.automacorp.model.RoomDto
+import com.automacorp.model.WindowDto
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -29,4 +30,7 @@ interface RoomsApiService {
 
     @PATCH("windows/{id}/switch")
     fun switchWindow(@Path("id") id: Long): Call<Void>
+
+    @POST("windows")
+    fun createWindow(@Body window: WindowDto): Call<WindowDto>
 }
