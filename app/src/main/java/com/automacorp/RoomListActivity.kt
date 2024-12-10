@@ -33,18 +33,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
-import com.automacorp.MainActivity.Companion.ROOM_PARAM
 import com.automacorp.model.RoomDto
-import com.automacorp.service.ApiServices
 import com.automacorp.service.RoomService
 import com.automacorp.ui.theme.AutomacorpTheme
 import com.automacorp.ui.theme.PurpleGrey80
 import com.automacorp.viewmodel.RoomViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class RoomListActivity : ComponentActivity() {
     companion object {
@@ -83,8 +77,8 @@ class RoomListActivity : ComponentActivity() {
         val viewModel: RoomViewModel by viewModels()
 
         setContent {
-            val roomsState by viewModel.roomsState.asStateFlow().collectAsState() // (1)
-            LaunchedEffect(Unit) { // (2)
+            val roomsState by viewModel.roomsState.asStateFlow().collectAsState()
+            LaunchedEffect(Unit) {
                 viewModel.findAll()
             }
             if (roomsState.error != null) {
@@ -92,10 +86,14 @@ class RoomListActivity : ComponentActivity() {
                     RoomList(emptyList(), navigateBack, openRoom)
                 }
                 Toast
-                    .makeText(applicationContext, "Error on rooms loading ${roomsState.error}", Toast.LENGTH_LONG)
-                    .show() // (3)
+                    .makeText(
+                        applicationContext,
+                        "Error on rooms loading ${roomsState.error}",
+                        Toast.LENGTH_LONG
+                    )
+                    .show()
             } else {
-                RoomList(roomsState.rooms, navigateBack, openRoom) // (4)
+                RoomList(roomsState.rooms, navigateBack, openRoom)
             }
         }
 
@@ -106,11 +104,16 @@ class RoomListActivity : ComponentActivity() {
 fun RoomList(
     rooms: List<RoomDto>,
     navigateBack: () -> Unit,
-    openRoom: (id: Long) -> Unit
+    openRoom: (id: Long) -> Unit,
 ) {
     AutomacorpTheme {
         Scaffold(
-            topBar = { AutomacorpTopAppBar("Rooms", navigateBack) }
+            topBar = {
+                AutomacorpTopAppBar(
+                    "Rooms", navigateBack,
+
+                    )
+            }
         ) { innerPadding ->
             if (rooms.isEmpty()) {
                 Text(

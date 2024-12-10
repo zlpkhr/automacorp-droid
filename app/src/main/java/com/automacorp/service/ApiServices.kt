@@ -1,5 +1,6 @@
 package com.automacorp.service
 
+import android.annotation.SuppressLint
 import okhttp3.Credentials
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -13,23 +14,24 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
 
 object ApiServices {
-    const val API_USERNAME = "user"
-    const val API_PASSWORD = "password"
+    private const val API_USERNAME = "user"
+    private const val API_PASSWORD = "password"
 
     val roomsApiService: RoomsApiService by lazy {
-        val client =  getUnsafeOkHttpClient()
+        val client = getUnsafeOkHttpClient()
             .addInterceptor(BasicAuthInterceptor(API_USERNAME, API_PASSWORD))
             .build()
 
         Retrofit.Builder()
-            .addConverterFactory(MoshiConverterFactory.create()) // (1)
+            .addConverterFactory(MoshiConverterFactory.create())
             .client(client)
-            .baseUrl("http://automacorp.devmind.cleverapps.io/api/") // (2)
+            .baseUrl("http://automacorp.devmind.cleverapps.io/api/")
             .build()
             .create(RoomsApiService::class.java)
     }
 
-    class BasicAuthInterceptor(val username: String, val password: String) : Interceptor {
+    class BasicAuthInterceptor(private val username: String, private val password: String) :
+        Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             val request = chain
                 .request()
@@ -42,11 +44,14 @@ object ApiServices {
 
     private fun getUnsafeOkHttpClient(): OkHttpClient.Builder =
         OkHttpClient.Builder().apply {
-            val trustManager = object : X509TrustManager {
+            val trustManager = @SuppressLint("CustomX509TrustManager")
+            object : X509TrustManager {
+                @SuppressLint("TrustAllX509TrustManager")
                 @Throws(CertificateException::class)
                 override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
                 }
 
+                @SuppressLint("TrustAllX509TrustManager")
                 @Throws(CertificateException::class)
                 override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
                 }

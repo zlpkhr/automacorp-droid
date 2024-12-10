@@ -19,15 +19,15 @@ class RoomViewModel : ViewModel() {
     val roomsState = MutableStateFlow(RoomList())
 
     fun findAll() {
-        viewModelScope.launch(context = Dispatchers.IO) { // (1)
+        viewModelScope.launch(context = Dispatchers.IO) {
             runCatching { ApiServices.roomsApiService.findAll().execute() }
                 .onSuccess {
                     val rooms = it.body() ?: emptyList()
-                    roomsState.value = RoomList(rooms) // (2)
+                    roomsState.value = RoomList(rooms)
                 }
                 .onFailure {
                     it.printStackTrace()
-                    roomsState.value = RoomList(emptyList(), it.stackTraceToString()) // (3)
+                    roomsState.value = RoomList(emptyList(), it.stackTraceToString())
                 }
         }
     }

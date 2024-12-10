@@ -2,7 +2,6 @@ package com.automacorp
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -26,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.automacorp.ui.theme.AutomacorpTheme
-import androidx.compose.runtime.setValue
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -78,7 +77,6 @@ fun AppLogo(modifier: Modifier) {
 
 @Composable
 fun Greeting(onClick: (name: String) -> Unit, modifier: Modifier = Modifier) {
-
     Column {
         AppLogo(
             Modifier
