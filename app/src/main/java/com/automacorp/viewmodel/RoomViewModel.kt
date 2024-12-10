@@ -26,6 +26,15 @@ class RoomViewModel : ViewModel() {
         }
     }
 
+    fun deleteWindow(id: Long, roomId: Long) {
+        viewModelScope.launch(context = Dispatchers.IO) {
+            runCatching { ApiServices.roomsApiService.deleteWindow(id).execute() }
+                .onSuccess {
+                    room?.id?.let { findRoom(roomId) }
+                }
+        }
+    }
+
     fun findAll() {
         viewModelScope.launch(context = Dispatchers.IO) {
             runCatching { ApiServices.roomsApiService.findAll().execute() }
@@ -95,6 +104,29 @@ class RoomViewModel : ViewModel() {
                 .onFailure {
                     it.printStackTrace()
                 }
+        }
+    }
+
+    fun updateWindow(id: Long, name: String) {
+        val existingWindow = room?.windows?.find { it.id == id }
+        if (existingWindow != null) {
+            val command = WindowDto(
+                id = existingWindow.id,
+                name = name,
+                windowStatus = existingWindow.windowStatus,
+                roomId = existingWindow.roomId
+            )
+
+            viewModelScope.launch(context = Dispatchers.IO) {
+                runCatching { ApiServices.roomsApiService.updateWindow(id, command).execute() }
+                    .onSuccess {
+                        // Refresh the room to get updated windows
+                        room?.id?.let { findRoom(it) }
+                    }
+                    .onFailure {
+                        it.printStackTrace()
+                    }
+            }
         }
     }
 }

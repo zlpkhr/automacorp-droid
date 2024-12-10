@@ -33,4 +33,10 @@ interface RoomsApiService {
 
     @POST("windows")
     fun createWindow(@Body window: WindowDto): Call<WindowDto>
+
+    @DELETE("windows/{id}")
+    fun deleteWindow(@Path("id") id: Long): Call<Void>
+
+    @PUT("windows/{id}")
+    fun updateWindow(@Path("id") id: Long, @Body window: WindowDto): Call<RoomDto>
 }

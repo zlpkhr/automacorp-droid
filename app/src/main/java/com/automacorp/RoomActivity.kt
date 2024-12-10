@@ -26,8 +26,13 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -167,10 +172,49 @@ fun RoomDetail(model: RoomViewModel, modifier: Modifier = Modifier, onDelete: ()
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
-                        .clickable { model.switchWindow(it.id) }
                 ) {
-                    Text(text = it.name, modifier = Modifier.weight(1f))
-                    Text(text = it.windowStatus.toString())
+                    var text by remember { mutableStateOf(it.name) }
+                    val ctx = LocalContext.current
+
+                    OutlinedTextField(
+                        value = text,
+
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Done,
+                                contentDescription = "Save",
+                                modifier = Modifier.clickable {
+                                    model.updateWindow(it.id, text)
+                                    Toast.makeText(ctx, "Window name updated", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
+                            )
+                        },
+                        onValueChange = { newName ->
+                            text = newName
+
+                        },
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text("Window Name") }
+                    )
+
+                    Button(
+                        onClick = {
+                            model.switchWindow(it.id)
+                        },
+                        modifier = Modifier.padding(start = 8.dp)
+                    ) {
+                        Text(text = it.windowStatus.toString())
+                    }
+
+                    Button(
+                        onClick = {
+                            model.deleteWindow(it.id, it.roomId)
+                        },
+                        modifier = Modifier.padding(start = 8.dp)
+                    ) {
+                        Text(text = "X")
+                    }
                 }
             }
             item {
