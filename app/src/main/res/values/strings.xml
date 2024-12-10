@@ -10,4 +10,9 @@
     <string name="act_room_none">No room found for this id or name</string>
     <string name="act_room_current_temperature">Current temperature</string>
     <string name="act_room_target_temperature">Target temperature</string>
+    <string name="act_room_save">Save</string>
+    <string name="app_go_back_description">Go back</string>
+    <string name="app_go_room_description">Rooms</string>
+    <string name="app_go_github_description">Github</string>
+    <string name="app_go_mail_description">Send email</string>Copy
 </resources>
