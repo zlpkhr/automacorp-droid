@@ -59,7 +59,7 @@ class RoomActivity : ComponentActivity() {
         }
 
         val navigateBack: () -> Unit = {
-            startActivity(Intent(baseContext, MainActivity::class.java))
+            startActivity(Intent(baseContext, RoomListActivity::class.java))
         }
 
         val goToRoomList: () -> Unit = {
