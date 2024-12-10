@@ -3,6 +3,7 @@ package com.automacorp
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
@@ -28,11 +29,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import com.automacorp.MainActivity.Companion.ROOM_PARAM
 import com.automacorp.model.RoomDto
+import com.automacorp.service.ApiServices
 import com.automacorp.service.RoomService
 import com.automacorp.ui.theme.AutomacorpTheme
 import com.automacorp.ui.theme.PurpleGrey80
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RoomListActivity : ComponentActivity() {
     companion object {
@@ -58,45 +64,77 @@ class RoomListActivity : ComponentActivity() {
         startActivity(intent)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            AutomacorpTheme {
-                Scaffold(
-                    topBar = {
-                        AutomacorpTopAppBar(
-                            "Rooms",
-                            navigateBack,
-                            goToRoomList,
-                            sendEmail,
-                            openGithub
-                        )
-                    }
-                ) { innerPadding ->
-                    LazyColumn(
-                        contentPadding = PaddingValues(4.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(innerPadding),
-                    ) {
-                        val rooms = RoomService.findAll()
-                        items(rooms, key = { it.id }) { it ->
-                            RoomItem(
-                                room = it,
-                                modifier = Modifier.clickable { openRoom(it.id) },
-                            )
-                        }
-                    }
-
-                }
-            }
-        }
-    }
-
-    private fun openRoom(id: Long) {
+    val openRoom: (id: Long) -> Unit = { id ->
         val intent = Intent(this, RoomActivity::class.java).apply {
             putExtra(ROOM_PARAM, id.toString())
         }
         startActivity(intent)
+    }
+
+    val rooms = RoomService.findAll()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        lifecycleScope.launch(context = Dispatchers.IO) {
+            runCatching {
+                ApiServices.roomsApiService.findAll().execute()
+            }
+                .onSuccess {
+                    val rooms = it.body() ?: emptyList()
+                    withContext(context = Dispatchers.Main) {
+                        setContent {
+                            RoomList(rooms, navigateBack, openRoom)
+                        }
+                    }
+                }
+                .onFailure { exception ->
+                    withContext(context = Dispatchers.Main) {
+                        setContent {
+                            RoomList(emptyList(), navigateBack, openRoom)
+                        }
+                        Toast.makeText(
+                            applicationContext,
+                            "Error on rooms loading: ${exception.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+        }
+
+    }
+}
+
+@Composable
+fun RoomList(
+    rooms: List<RoomDto>,
+    navigateBack: () -> Unit,
+    openRoom: (id: Long) -> Unit
+) {
+    AutomacorpTheme {
+        Scaffold(
+            topBar = { AutomacorpTopAppBar("Rooms", navigateBack) }
+        ) { innerPadding ->
+            if (rooms.isEmpty()) {
+                Text(
+                    text = "No room found",
+                    modifier = Modifier.padding(innerPadding)
+                )
+            } else {
+                LazyColumn(
+                    contentPadding = PaddingValues(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(innerPadding),
+                ) {
+                    items(rooms, key = { it.id }) {
+                        RoomItem(
+                            room = it,
+                            modifier = Modifier.clickable { openRoom(it.id) },
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
