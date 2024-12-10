@@ -13,6 +13,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -29,8 +30,8 @@ class CreateRoomActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val roomName = remember { mutableStateOf("") }
-            val targetTemperature = remember { mutableStateOf(18.0f) }
-            val currentTemperature = remember { mutableStateOf(18.0f) }
+            val targetTemperature = remember { mutableFloatStateOf(18.0f) }
+            val currentTemperature = remember { mutableFloatStateOf(18.0f) }
             val floor = remember { mutableStateOf("1") }
             val buildingId = remember { mutableStateOf("-10") }
 
@@ -61,14 +62,14 @@ class CreateRoomActivity : ComponentActivity() {
                                 String.format(
                                     Locale.getDefault(),
                                     "%.1f",
-                                    currentTemperature.value
+                                    currentTemperature.floatValue
                                 )
                             }°C",
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         Slider(
-                            value = currentTemperature.value,
-                            onValueChange = { currentTemperature.value = it },
+                            value = currentTemperature.floatValue,
+                            onValueChange = { currentTemperature.floatValue = it },
                             valueRange = 10f..28f,
                             steps = 0,
                             modifier = Modifier
@@ -80,14 +81,14 @@ class CreateRoomActivity : ComponentActivity() {
                                 String.format(
                                     Locale.getDefault(),
                                     "%.1f",
-                                    targetTemperature.value
+                                    targetTemperature.floatValue
                                 )
                             }°C",
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         Slider(
-                            value = targetTemperature.value,
-                            onValueChange = { targetTemperature.value = it },
+                            value = targetTemperature.floatValue,
+                            onValueChange = { targetTemperature.floatValue = it },
                             valueRange = 10f..28f,
                             steps = 0,
                             modifier = Modifier
@@ -114,8 +115,8 @@ class CreateRoomActivity : ComponentActivity() {
                             onClick = {
                                 val command = RoomCommandDto(
                                     name = roomName.value,
-                                    targetTemperature = targetTemperature.value.toDouble(),
-                                    currentTemperature = currentTemperature.value.toDouble(),
+                                    targetTemperature = targetTemperature.floatValue.toDouble(),
+                                    currentTemperature = currentTemperature.floatValue.toDouble(),
                                     floor = floor.value.toIntOrNull() ?: 1,
                                     buildingId = buildingId.value.toLongOrNull() ?: -10
                                 )
