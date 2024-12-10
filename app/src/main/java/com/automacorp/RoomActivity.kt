@@ -74,7 +74,11 @@ class RoomActivity : ComponentActivity() {
                             openGithub = { openGithub(this) }
                         )
                     },
-                    floatingActionButton = { RoomUpdateButton(onRoomSave) },
+                    floatingActionButton = {
+                        if (roomState != null) {
+                            RoomUpdateButton(onRoomSave)
+                        }
+                    },
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
                     if (roomState != null) {
