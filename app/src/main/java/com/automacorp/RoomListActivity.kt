@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,7 +40,9 @@ import com.automacorp.service.ApiServices
 import com.automacorp.service.RoomService
 import com.automacorp.ui.theme.AutomacorpTheme
 import com.automacorp.ui.theme.PurpleGrey80
+import com.automacorp.viewmodel.RoomViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -71,35 +77,26 @@ class RoomListActivity : ComponentActivity() {
         startActivity(intent)
     }
 
-    val rooms = RoomService.findAll()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        lifecycleScope.launch(context = Dispatchers.IO) {
-            runCatching {
-                ApiServices.roomsApiService.findAll().execute()
+        val viewModel: RoomViewModel by viewModels()
+
+        setContent {
+            val roomsState by viewModel.roomsState.asStateFlow().collectAsState() // (1)
+            LaunchedEffect(Unit) { // (2)
+                viewModel.findAll()
             }
-                .onSuccess {
-                    val rooms = it.body() ?: emptyList()
-                    withContext(context = Dispatchers.Main) {
-                        setContent {
-                            RoomList(rooms, navigateBack, openRoom)
-                        }
-                    }
+            if (roomsState.error != null) {
+                setContent {
+                    RoomList(emptyList(), navigateBack, openRoom)
                 }
-                .onFailure { exception ->
-                    withContext(context = Dispatchers.Main) {
-                        setContent {
-                            RoomList(emptyList(), navigateBack, openRoom)
-                        }
-                        Toast.makeText(
-                            applicationContext,
-                            "Error on rooms loading: ${exception.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
+                Toast
+                    .makeText(applicationContext, "Error on rooms loading ${roomsState.error}", Toast.LENGTH_LONG)
+                    .show() // (3)
+            } else {
+                RoomList(roomsState.rooms, navigateBack, openRoom) // (4)
+            }
         }
 
     }

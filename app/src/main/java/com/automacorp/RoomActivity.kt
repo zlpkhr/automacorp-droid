@@ -44,17 +44,23 @@ import kotlin.math.round
 class RoomActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val param = intent.getStringExtra(MainActivity.ROOM_PARAM)
+        val param = intent.getStringExtra(MainActivity.ROOM_PARAM)?.toLongOrNull()
         val viewModel: RoomViewModel by viewModels()
-        viewModel.room = RoomService.findByNameOrId(param)
+        param?.let {
+            viewModel.findRoom(it)
+        }
+
 
         val onRoomSave: () -> Unit = {
             if (viewModel.room != null) {
-                val roomDto: RoomDto = viewModel.room as RoomDto
-                RoomService.updateRoom(roomDto.id, roomDto)
-                Toast.makeText(baseContext, "Room ${roomDto.name} was updated", Toast.LENGTH_LONG)
-                    .show()
+                viewModel.updateRoom(viewModel.room!!.id, viewModel.room!!)
+                Toast.makeText(
+                    baseContext,
+                    "Room ${viewModel.room!!.name} was updated",
+                    Toast.LENGTH_LONG
+                ).show()
                 startActivity(Intent(baseContext, MainActivity::class.java))
+
             }
         }
 
@@ -81,6 +87,8 @@ class RoomActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AutomacorpTheme {
+                val roomState = viewModel.room
+
                 Scaffold(
                     topBar = {
                         AutomacorpTopAppBar(
@@ -94,7 +102,7 @@ class RoomActivity : ComponentActivity() {
                     floatingActionButton = { RoomUpdateButton(onRoomSave) },
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
-                    if (viewModel.room != null) {
+                    if (roomState != null) {
                         RoomDetail(viewModel, Modifier.padding(innerPadding))
                     } else {
                         NoRoom(Modifier.padding(innerPadding))
